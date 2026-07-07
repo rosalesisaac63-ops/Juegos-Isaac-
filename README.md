@@ -1,0 +1,733 @@
+[index.html.html](https://github.com/user-attachments/files/29727397/index.html.html)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Senda del Artista: Anatomía de Piernas y Pies</title>
+    <style>
+        body {
+            background-color: #231810;
+            color: #f4e8c1;
+            font-family: 'Georgia', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+        }
+        h1 {
+            color: #d2b48c;
+            text-shadow: 2px 2px #3e2611;
+            margin-bottom: 5px;
+        }
+        p {
+            color: #a6936d;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 25px rgba(0,0,0,0.9);
+            border: 5px solid #4a2e15;
+            background-color: #e6d5b8;
+        }
+        canvas {
+            display: block;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #4a2e15;
+            background: rgba(230, 213, 184, 0.85);
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: 1px solid #5c3a21;
+        }
+        /* Pantalla de Inicio / Personalización */
+        #start-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(35, 24, 16, 0.96);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            z-index: 10;
+        }
+        .menu-box {
+            background-color: #e6d5b8;
+            border: 4px solid #5c3a21;
+            padding: 35px;
+            border-radius: 6px;
+            color: #2b1d14;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+        }
+        .color-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        .color-btn {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 12px 18px;
+            border: 3px solid #4a2e15;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.1s, border-color 0.1s;
+        }
+        .color-btn:hover {
+            transform: scale(1.05);
+        }
+        .color-btn.selected {
+            border-color: #f4e8c1;
+            box-shadow: 0 0 12px rgba(0,0,0,0.4);
+            transform: scale(1.08);
+        }
+        .btn-yellow { background-color: #b58900; }
+        .btn-blue { background-color: #2d6ca3; }
+        .btn-red { background-color: #9e2a2b; }
+        
+        .btn-main {
+            background-color: #703811;
+            color: #f4e8c1;
+            border: 2px solid #3e1f06;
+            padding: 14px 40px;
+            font-size: 18px;
+            font-family: 'Georgia', serif;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .btn-main:hover {
+            background-color: #8c4717;
+        }
+
+        /* Ventana de Trivia */
+        #trivia-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(35, 24, 16, 0.94);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            z-index: 5;
+        }
+        .trivia-box {
+            background-color: #e6d5b8;
+            border: 4px solid #5c3a21;
+            padding: 30px;
+            border-radius: 6px;
+            color: #2b1d14;
+            max-width: 555px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+        }
+        .trivia-box h2 {
+            font-size: 21px;
+            margin-top: 0;
+            color: #4a2e15;
+            line-height: 1.4;
+        }
+        .btn-option {
+            background-color: #703811;
+            color: #f4e8c1;
+            border: 2px solid #3e1f06;
+            padding: 12px 20px;
+            margin: 10px 0;
+            font-size: 16px;
+            font-family: 'Georgia', serif;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+            transition: background-color 0.1s;
+        }
+        .btn-option:hover {
+            background-color: #8c4717;
+        }
+
+        /* Pantallas de fin de juego */
+        #game-over-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(29, 19, 12, 0.95);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #f4e8c1;
+            text-align: center;
+            z-index: 5;
+        }
+        #endTitle {
+            font-size: 42px;
+            color: #d2b48c;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>La Senda del Artista: Piernas y Pies</h1>
+    <p>Controles precisos: Caminar con <b>A</b> y <b>D</b>. Salto y Doble Salto con <b>W</b>.</p>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div id="ui-layer">
+            Vidas: <span id="livesText">3</span> / 3 | Nivel: <span id="levelText">1</span>/10
+        </div>
+        
+        <div id="start-overlay">
+            <div class="menu-box">
+                <h2 style="margin-top:0; color:#4a2e15;">Tratado de Anatomía Humana</h2>
+                <p>Configura la tinta del boceto para iniciar el estudio práctico de las extremidades inferiores (¡Incluye música retro!):</p>
+                <div class="color-selector">
+                    <button class="color-btn btn-yellow selected" onclick="changeInk('yellow', this)">Amarillo Ocre</button>
+                    <button class="color-btn btn-blue" onclick="changeInk('blue', this)">Azul Boceto</button>
+                    <button class="color-btn btn-red" onclick="changeInk('red', this)">Rojo Sanguina</button>
+                </div>
+                <button class="btn-main" onclick="startGame()">Comenzar Lección</button>
+            </div>
+        </div>
+        
+        <div id="trivia-overlay">
+            <div class="trivia-box">
+                <h2 id="questionText">Pregunta de Anatomía</h2>
+                <div id="optionsContainer"></div>
+            </div>
+        </div>
+
+        <div id="game-over-overlay">
+            <h1 id="endTitle">¡Estudio Interrumpido!</h1>
+            <p id="endMessage">Te has quedado sin vidas.</p>
+            <button class="btn-main" onclick="restartGame()">Recomenzar Cuaderno</button>
+        </div>
+    </div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Configuración general del juego
+let lives = 3;
+let currentLevel = 0;
+let gameState = 'START'; 
+const TILE_SIZE = 50;
+
+// Gestión de Destellos de color (Feedback Visual)
+let flashColor = null;
+let flashFrames = 0;
+
+// --- SISTEMA DE MÚSICA 8-BITS (Web Audio API) ---
+const chiptuneAudio = {
+    ctx: null,
+    index: 0,
+    isPlaying: false,
+    // Partitura matemática (Frecuencias Hz de una melodía retro en La Menor)
+    melody: [
+        440.00, 523.25, 659.25, 587.33, 523.25, 493.88, 440.00, 329.63,
+        440.00, 440.00, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33,
+        587.33, 698.46, 880.00, 783.99, 698.46, 659.25, 587.33, 440.00,
+        523.25, 493.88, 440.00, 392.00, 440.00, 440.00, 0.00,   440.00
+    ],
+    init() {
+        if (this.ctx) {
+            if (this.ctx.state === 'suspended') this.ctx.resume();
+            return;
+        }
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.isPlaying = true;
+        this.runSequencer();
+    },
+    runSequencer() {
+        const loop = () => {
+            if (!this.isPlaying) return;
+            
+            let freq = this.melody[this.index];
+            this.index = (this.index + 1) % this.melody.length;
+
+            // Si la nota no es un silencio (0.00), sintetizar la onda cuadrada analógica
+            if (freq > 0) {
+                let osc = this.ctx.createOscillator();
+                let gainNode = this.ctx.createGain();
+                
+                osc.type = 'square'; // Timbre característico de los 8 bits
+                osc.frequency.value = freq;
+                
+                // Volumen controlado y envolvente corta (Staccato)
+                gainNode.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.18);
+                
+                osc.connect(gainNode);
+                gainNode.connect(this.ctx.destination);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.18);
+            }
+            setTimeout(loop, 170); // Velocidad constante del tempo del juego
+        };
+        loop();
+    }
+};
+
+// Paleta de tintas seleccionables
+const inkPalettes = {
+    yellow: { stroke: '#b58900', fill: 'rgba(181, 137, 0, 0.18)' },
+    blue:   { stroke: '#2d6ca3', fill: 'rgba(45, 108, 163, 0.18)' },
+    red:    { stroke: '#9e2a2b', fill: 'rgba(158, 42, 43, 0.18)' }
+};
+let currentInk = 'yellow'; 
+
+// Físicas del Jugador
+const player = {
+    x: 0, y: 0,
+    width: 28, height: 52,
+    vx: 0, vy: 0,
+    accel: 0.65,       
+    maxSpeed: 5.5,     
+    jumpForce: -12.5,  
+    gravity: 0.65,
+    jumps: 0,
+    maxJumps: 2,
+    isGrounded: false,
+    stride: 0
+};
+
+// Controles
+const keys = { left: false, right: false };
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'KeyA') keys.left = true;
+    if (e.code === 'KeyD') keys.right = true;
+    
+    if (e.code === 'KeyW' && gameState === 'PLAYING') {
+        if (!player.isGrounded && player.jumps === 0) {
+            player.jumps = 1;
+        }
+        if (player.jumps < player.maxJumps) {
+            player.vy = player.jumpForce;
+            player.jumps++;
+            player.isGrounded = false;
+        }
+    }
+});
+document.addEventListener('keyup', (e) => {
+    if (e.code === 'KeyA') keys.left = false;
+    if (e.code === 'KeyD') keys.right = false;
+});
+
+// Cuestionario de Anatomía Artística
+const questions = [
+    { q: "¿Cuál es el hueso más largo y fuerte de la pierna, esencial para determinar las proporciones generales del miembro inferior?", options: ["El Fémur", "La Tibia", "El Peroné"], ans: 0 },
+    { q: "En la clásica pose del 'contrapposto', ¿qué sucede estructuralmente con la pierna que sostiene la mayor parte del peso?", options: ["Se dobla notablemente hacia el frente", "Se mantiene firme y recta, haciendo que la cadera de ese lado se eleve", "Se relaja por completo desplazando la rótula hacia afuera"], ans: 1 },
+    { q: "¿Qué músculo superficial define el volumen redondeado y principal de la pantorrilla en su vista posterior?", options: ["El Cuádriceps femoral", "El Gastrocnemio (Gemelos)", "El Bíceps femoral"], ans: 2 },
+    { q: "Al dibujar la articulación de la rodilla de frente, ¿qué estructura ósea flotante actúa como escudo visual y punto de anclaje mecánico?", options: ["La Rótula (o Patela)", "El Calcáneo", "El Maléolo"], ans: 0 },
+    { q: "En el canon anatómico ideal de 8 cabezas de altura, ¿cuántas 'cabezas' completas suele medir la longitud de las piernas desde la articulación coxofemoral hasta el suelo?", options: ["Aproximadamente 2 cabezas", "Aproximadamente 3 cabezas", "Aproximadamente 4 cabezas"], ans: 2 },
+    { q: "Al estructurar los tobillos en un dibujo, ¿qué regla de asimetría natural debemos aplicar siempre?", options: ["El tobillo externo (maléolo externo) es más bajo que el interno", "Ambos tobillos se alinean perfectamente en horizontal", "El tobillo interno es el que se sitúa más abajo"], ans: 0 },
+    { q: "Para encajar de manera rápida un pie visto de perfil en una fase de boceto estructural, ¿cuál es la figura geométrica básica recomendada?", options: ["Un óvalo perfecto", "Una cuña o triángulo alargado", "Un cilindro vertical"], ans: 1 },
+    { q: "¿Qué importante tendón de la parte posterior del pie conecta los gemelos con el talón y es crucial marcar para dar fuerza al tobillo?", options: ["El tendón rotuliano", "El tendón de Aquiles", "El ligamento colateral"], ans: 1 },
+    { q: "Cuando una figura se eleva en 'flexión plantar' (apoyado solo en los dedos del pie), ¿qué cambio formal ocurre en la pantorrilla?", options: ["El músculo se estira, aplanándose visualmente", "El músculo se contrae, acortándose y ganando mucho volumen", "No experimenta ningún cambio morfológico perceptible"], ans: 1 },
+    { q: "Observando la pierna completamente de frente, el contorno curvo de la pantorrilla externa en comparación con la interna es:", options: ["Más alto", "Más bajo", "Exactamente simétrico"], ans: 0 }
+];
+
+// Mapas
+const maps = [
+    ["                ", "                ", "                ", "                ", "                ", "                ", "                ", "                ", "                ", "P             G ", "XXXXXXXXXXXXXXXX", "XXXXXXXXXXXXXXXX"],
+    ["                ", "                ", "                ", "                ", "                ", "                ", "                ", "                ", "                ", "P       XX    G ", "XXXXX        XXX", "XXXXX        XXX"],
+    ["                ", "                ", "                ", "                ", "                ", "                ", "                ", "           XXX G", "                ", "P  XXX   XXX    ", "XXX             ", "XXX             "],
+    ["                ", "                ", "                ", "                ", "                ", "                ", "                ", "                ", "                ", "P    XX      XXG", "XXX  XX  ^^  XXX", "XXX  XX^^^^^^XXX"],
+    ["                ", "                ", "                ", "                ", "                ", "                ", "             XXG", "                ", "                ", "P      XXXX     ", "XXXX            ", "XXXX            "],
+    ["                ", "                ", "                ", "               G", "                ", "            XXXX", "        XXXX    ", "    XXXX        ", "                ", "P               ", "XXXX^^^^^^^^^^^^", "XXXX^^^^^^^^^^^^"],
+    ["                ", "                ", "                ", "                ", "                ", "       XX       ", "             XXG", "   XX           ", "                ", "P               ", "XXXX  ^^^^^  XXX", "XXXX  ^^^^^  XXX"],
+    ["                ", "                ", "                ", "          XX    ", "               G", "         XX     ", "                ", "     XX         ", "                ", "P XX            ", "XX              ", "XX              "],
+    ["                ", "                ", "                ", "             XXG", "                ", "          XXXX  ", "                ", "      XXXX^^^^^^", "   XXX^^^^^^^^^^", "P  ^^^          ", "XXXX            ", "XXXX            "],
+    ["                ", "                ", "               G", "             XXX", "          XX    ", "       XX       ", "    XX          ", "                ", "                ", "P       ^^^^^^^^", "XXX  XXX^^^^^^^^", "XXX  XXX^^^^^^^^"]
+];
+
+let spawnPoint = { x: 0, y: 0 };
+const backgroundBlots = [];
+for (let i = 0; i < 15; i++) {
+    backgroundBlots.push({
+        x: Math.random() * 800, y: Math.random() * 550,
+        r: 35 + Math.random() * 75, opacity: 0.07 + Math.random() * 0.12
+    });
+}
+
+function getTile(col, row) {
+    if (col < 0 || col >= 16 || row < 0 || row >= 12) return ' ';
+    return maps[currentLevel][row][col];
+}
+
+function isSolid(col, row) {
+    return getTile(col, row) === 'X';
+}
+
+function changeInk(color, element) {
+    currentInk = color;
+    document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('selected'));
+    element.classList.add('selected');
+}
+
+function startGame() {
+    document.getElementById('start-overlay').style.display = 'none';
+    gameState = 'PLAYING';
+    chiptuneAudio.init(); // Arrancar música 8-bits de forma segura
+    loadLevel(currentLevel);
+}
+
+function triggerFlash(colorRGB) {
+    flashColor = colorRGB;
+    flashFrames = 18; 
+}
+
+function loadLevel(index) {
+    const map = maps[index];
+    for (let row = 0; row < 12; row++) {
+        for (let col = 0; col < 16; col++) {
+            if (map[row][col] === 'P') {
+                spawnPoint = { x: col * TILE_SIZE + 10, y: row * TILE_SIZE - 5 };
+            }
+        }
+    }
+    resetPlayer();
+    document.getElementById('levelText').innerText = index + 1;
+}
+
+function resetPlayer() {
+    player.x = spawnPoint.x;
+    player.y = spawnPoint.y;
+    player.vx = 0;
+    player.vy = 0;
+    player.jumps = 0;
+    player.stride = 0;
+    player.isGrounded = false;
+}
+
+function loseLife() {
+    lives--;
+    document.getElementById('livesText').innerText = lives;
+    if (lives <= 0) {
+        gameState = 'GAMEOVER';
+        document.getElementById('game-over-overlay').style.display = 'flex';
+        document.getElementById('endTitle').innerText = "¡Boceto Incompleto!";
+        document.getElementById('endMessage').innerText = "Has gastado tus líneas de vida sobre el pergamino.";
+    } else {
+        resetPlayer();
+    }
+}
+
+function triggerTrivia() {
+    gameState = 'TRIVIA';
+    keys.left = false; keys.right = false;
+    const overlay = document.getElementById('trivia-overlay');
+    const qText = document.getElementById('questionText');
+    const optsDiv = document.getElementById('optionsContainer');
+    const qData = questions[currentLevel];
+    
+    qText.innerText = qData.q;
+    optsDiv.innerHTML = "";
+    
+    qData.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-option';
+        btn.innerText = opt;
+        btn.onclick = () => answerTrivia(index, qData.ans);
+        optsDiv.appendChild(btn);
+    });
+    overlay.style.display = 'flex';
+}
+
+function answerTrivia(selectedIndex, correctIndex) {
+    document.getElementById('trivia-overlay').style.display = 'none';
+    
+    if (selectedIndex === correctIndex) {
+        triggerFlash('rgba(46, 204, 113, 0.65)'); // Acierto -> Destello Verde
+        currentLevel++;
+        if (currentLevel >= maps.length) {
+            gameState = 'VICTORY';
+            document.getElementById('game-over-overlay').style.display = 'flex';
+            document.getElementById('endTitle').innerText = "¡Maestro de la Anatomía!";
+            document.getElementById('endMessage').innerText = "Has completado con éxito todo el tratado de dibujo renacentista.";
+        } else {
+            loadLevel(currentLevel);
+            gameState = 'PLAYING';
+        }
+    } else {
+        triggerFlash('rgba(231, 76, 60, 0.65)'); // Error -> Destello Rojo
+        gameState = 'PLAYING';
+        loseLife();
+    }
+}
+
+function restartGame() {
+    document.getElementById('game-over-overlay').style.display = 'none';
+    lives = 3;
+    currentLevel = 0;
+    document.getElementById('livesText').innerText = lives;
+    gameState = 'PLAYING';
+    chiptuneAudio.init(); 
+    loadLevel(currentLevel);
+}
+
+function update() {
+    if (flashFrames > 0) {
+        flashFrames--;
+        if (flashFrames === 0) flashColor = null;
+    }
+
+    if (gameState !== 'PLAYING') return;
+
+    // Movimiento Horizontal
+    if (keys.left) {
+        if (player.vx > 0) player.vx *= 0.4;
+        player.vx -= player.accel;
+    } else if (keys.right) {
+        if (player.vx < 0) player.vx *= 0.4;
+        player.vx += player.accel;
+    } else {
+        player.vx *= player.isGrounded ? 0.72 : 0.90; 
+        if (Math.abs(player.vx) < 0.1) player.vx = 0;
+    }
+
+    if (player.vx > player.maxSpeed) player.vx = player.maxSpeed;
+    if (player.vx < -player.maxSpeed) player.vx = -player.maxSpeed;
+
+    player.x += player.vx;
+    
+    let minRow = Math.floor((player.y + 2) / TILE_SIZE);
+    let maxRow = Math.floor((player.y + player.height - 2) / TILE_SIZE);
+
+    if (player.vx > 0) {
+        let col = Math.floor((player.x + player.width) / TILE_SIZE);
+        for (let r = minRow; r <= maxRow; r++) {
+            if (isSolid(col, r)) {
+                player.x = col * TILE_SIZE - player.width;
+                player.vx = 0;
+                break;
+            }
+        }
+    } else if (player.vx < 0) {
+        let col = Math.floor(player.x / TILE_SIZE);
+        for (let r = minRow; r <= maxRow; r++) {
+            if (isSolid(col, r)) {
+                player.x = (col + 1) * TILE_SIZE;
+                player.vx = 0;
+                break;
+            }
+        }
+    }
+
+    if (player.vx !== 0 && player.isGrounded) {
+        player.stride += 0.24 * (Math.abs(player.vx) / player.maxSpeed);
+    }
+
+    // Movimiento Vertical
+    player.vy += player.gravity;
+    player.y += player.vy;
+    player.isGrounded = false;
+
+    let minCol = Math.floor((player.x + 2) / TILE_SIZE);
+    let maxCol = Math.floor((player.x + player.width - 2) / TILE_SIZE);
+
+    if (player.vy > 0) { 
+        let row = Math.floor((player.y + player.height) / TILE_SIZE);
+        for (let c = minCol; c <= maxCol; c++) {
+            if (isSolid(c, row)) {
+                player.y = row * TILE_SIZE - player.height;
+                player.vy = 0;
+                player.isGrounded = true;
+                player.jumps = 0;
+                break;
+            }
+        }
+    } else if (player.vy < 0) { 
+        let row = Math.floor(player.y / TILE_SIZE);
+        for (let c = minCol; c <= maxCol; c++) {
+            if (isSolid(c, row)) {
+                player.y = (row + 1) * TILE_SIZE;
+                player.vy = 0;
+                break;
+            }
+        }
+    }
+
+    if (player.y > canvas.height) {
+        triggerFlash('rgba(231, 76, 60, 0.65)'); 
+        loseLife();
+        return;
+    }
+
+    const checkPoints = [
+        { x: player.x + 3, y: player.y + 4 },
+        { x: player.x + player.width - 3, y: player.y + 4 },
+        { x: player.x + 3, y: player.y + player.height - 2 },
+        { x: player.x + player.width - 3, y: player.y + player.height - 2 }
+    ];
+
+    for (let pt of checkPoints) {
+        let c = Math.floor(pt.x / TILE_SIZE);
+        let r = Math.floor(pt.y / TILE_SIZE);
+        let tile = getTile(c, r);
+        if (tile === '^') {
+            triggerFlash('rgba(231, 76, 60, 0.65)');
+            loseLife();
+            return;
+        }
+        if (tile === 'G') {
+            triggerTrivia();
+            return;
+        }
+    }
+}
+
+// Renderizado del Jugador usando la gama cromática elegida en el inicio
+function drawAnatomicalPlayer(x, y, w, h) {
+    ctx.save();
+    
+    const palette = inkPalettes[currentInk];
+    ctx.strokeStyle = palette.stroke;
+    ctx.lineWidth = 2;
+    ctx.fillStyle = palette.fill;
+
+    let cx = x + w / 2;
+    let hipY = y + 10;
+    
+    let angle = Math.sin(player.stride) * 0.48;
+    if (!player.isGrounded) angle = 0.25; 
+
+    ctx.beginPath();
+    ctx.arc(cx, hipY, 5, 0, Math.PI * 2);
+    ctx.moveTo(cx - 8, hipY);
+    ctx.lineTo(cx + 8, hipY);
+    ctx.stroke();
+
+    function drawLeg(side) {
+        let currentAngle = angle * side;
+        
+        let kneeX = cx + (side * 5) + Math.sin(currentAngle) * (h * 0.4);
+        let kneeY = hipY + Math.cos(currentAngle) * (h * 0.4);
+        
+        let ankleX = kneeX + Math.sin(currentAngle - 0.15 * side) * (h * 0.38);
+        let ankleY = kneeY + Math.cos(currentAngle - 0.15 * side) * (h * 0.38);
+        
+        let footX = ankleX + (side * 11);
+        let footY = ankleY + 5;
+
+        ctx.beginPath();
+        ctx.moveTo(cx + (side * 3), hipY);
+        ctx.lineTo(kneeX, kneeY); 
+        ctx.lineTo(ankleX, ankleY); 
+        ctx.lineTo(footX, footY); 
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(kneeX, kneeY, 4, 0, Math.PI * 2);
+        ctx.arc(ankleX, ankleY, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(kneeX - 3, kneeY + 6);
+        ctx.lineTo(kneeX + 3, kneeY + 9);
+        ctx.stroke();
+    }
+
+    drawLeg(-1); 
+    drawLeg(1);  
+
+    ctx.restore();
+}
+
+function drawBackground() {
+    ctx.fillStyle = '#e6d5b8';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    backgroundBlots.forEach(b => {
+        ctx.beginPath();
+        ctx.fillStyle = '#6e482e';
+        ctx.globalAlpha = b.opacity;
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1.0;
+
+    ctx.strokeStyle = '#baa67d';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, 450);
+    ctx.quadraticCurveTo(200, 390, 500, 480);
+    ctx.quadraticCurveTo(680, 520, 800, 440);
+    ctx.stroke();
+}
+
+function draw() {
+    drawBackground();
+
+    if (gameState !== 'START') {
+        for (let row = 0; row < 12; row++) {
+            for (let col = 0; col < 16; col++) {
+                let tile = getTile(col, row);
+                let tx = col * TILE_SIZE;
+                let ty = row * TILE_SIZE;
+
+                if (tile === 'X') {
+                    ctx.fillStyle = '#3a2414';
+                    ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+                    ctx.strokeStyle = '#52341e';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(tx + 2, ty + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+                } else if (tile === '^') {
+                    ctx.fillStyle = '#2b0c0c';
+                    ctx.beginPath();
+                    ctx.moveTo(tx, ty + TILE_SIZE);
+                    ctx.lineTo(tx + TILE_SIZE / 2, ty + 20); 
+                    ctx.lineTo(tx + TILE_SIZE, ty + TILE_SIZE);
+                    ctx.fill();
+                    ctx.strokeStyle = '#471616';
+                    ctx.stroke();
+                } else if (tile === 'G') {
+                    ctx.fillStyle = '#c99e24';
+                    ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+                    ctx.fillStyle = '#7a5e11';
+                    ctx.beginPath();
+                    ctx.arc(tx + TILE_SIZE / 2, ty + TILE_SIZE, TILE_SIZE / 2 - 4, Math.PI, 0);
+                    ctx.fill();
+                }
+            }
+        }
+        drawAnatomicalPlayer(player.x, player.y, player.width, player.height);
+    }
+
+    // CAPA SUPERIOR: Parpadeo de color reactivo (Verde / Rojo)
+    if (flashColor) {
+        ctx.save();
+        ctx.fillStyle = flashColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+    }
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>
